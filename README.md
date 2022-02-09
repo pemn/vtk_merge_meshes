@@ -24,7 +24,7 @@ Download this complete repository as a zip and extract to a local folder.
 The folder must have execute permissions. On Windows this means a folder outside the user directories, because locations such as Downloads, Documents, Desktop, etc do not allow .cmd files to run.  
 ![downloadcode](assets/downloadcode.png?raw=true)
 ## Run
-The simplest way to run is to execute (double click on windows explorer) the supplied [script name].cmd file. This batch script shoud detect a WinPython distribution and use it automatically to call the main py file (vtk_reserves.py).  For other distributions, manually call the main script by using the following command in the distro eqivalent of  **Python Command Prompt** (not any kind of Python Interpreter!):  
+The simplest way to run is to execute (double click on windows explorer) the supplied [script name].cmd file. This batch script shoud detect a WinPython distribution and use it automatically to call the main py file ([script name].py).  For other distributions, manually call the main script by using the following command in the distro eqivalent of  **Python Command Prompt** (not any kind of Python Interpreter!):  
 `python vtk_merge_meshes.py`  
 Either way the user interface should appear.
 
