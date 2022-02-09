@@ -2190,7 +2190,8 @@ class Branding(object):
   _gc = []
   def __init__(self, f='ICO', size=None, choice=None):
     if choice is None:
-      self._choice = os.environ['USERDOMAIN']
+      if 'USERDOMAIN' in os.environ:
+        self._choice = os.environ['USERDOMAIN']
     else:
       self._choice = choice
 
