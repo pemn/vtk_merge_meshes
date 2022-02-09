@@ -28,6 +28,15 @@ The simplest way to run is to execute (double click on windows explorer) the sup
 `python vtk_merge_meshes.py`  
 Either way the user interface should appear.
 
+## Suported file formats
+The surfaces and solids can be in those supported formats:
+ - csv (ASCII, with x,y,z and faces)
+ - obj (wavefront)
+ - msh (leapfrog)
+ - vtk (containing PolyData Mesh object types).  
+
+## Sample Data
+There is a simple artificial dataset on the sample_data folder of this repository for testing and reference.
 
 ## screenshots
 ![screenshot1](assets/screenshot1.png?raw=true)  
