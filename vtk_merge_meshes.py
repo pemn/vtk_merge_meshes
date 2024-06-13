@@ -2,7 +2,7 @@
 # repair or merge multiple surface/solid meshes
 # v1.0 2022/02 paulo.ernesto
 '''
-usage: $0 mode%surface,solid input_files#input_path*vtk,obj,msh operation=min,max,order cell_size=10 output_path*vtk,obj,msh display@
+usage: $0 mode%surface,solid,boolean,voxel input_files#input_path*vtk,obj,msh operation=min,max,order cell_size=10 output_path*vtk,obj,msh display@
 '''
 '''
 Copyright 2022 Vale
@@ -28,13 +28,14 @@ import sys, os.path
 import numpy as np
 import pandas as pd
 import pyvista as pv
+from glob import glob
 
 # import modules from a pyz (zip) file with same name as scripts
 sys.path.insert(0, os.path.splitext(sys.argv[0])[0] + '.pyz')
 
 from _gui import usage_gui, commalist, pd_load_dataframe, pd_save_dataframe,log
 
-from pd_vtk import pv_read, pv_save, vtk_plot_meshes, vtk_Voxel, vtk_meshes_bb
+from pd_vtk import pv_read, pv_save, vtk_plot_meshes, vtk_Voxel, vtk_meshes_bb, mr_boolean
 
 def vtk_merge_surface(meshes, operation, cell_size):
   bb = vtk_meshes_bb(meshes)
@@ -46,7 +47,7 @@ def vtk_merge_surface(meshes, operation, cell_size):
   for mesh in meshes:
     fn = None
     if operation != 'order':
-      fn = eval('np.' + operation)
+      fn = eval('np.nan' + operation)
     mz = grid.get_elevation(mesh, fn)
 
     gz = np.where(np.isnan(gz), mz, gz)
@@ -59,28 +60,35 @@ def vtk_merge_surface(meshes, operation, cell_size):
 
   return mesh
 
-def vtk_merge_solid(meshes, operation, cell_size):
-
+def vtk_merge_solid(meshes, operation, cell_size, tolerance = 0.001):
   bb = vtk_meshes_bb(meshes, cell_size)
-
-  grid = vtk_Voxel.from_bb(bb, cell_size, 3)
-
-  gz = np.full(grid.n_cells, np.nan)
-  cells = pv.PolyData(grid.cell_centers().points)
+  grid = vtk_Voxel.from_bb(bb, cell_size)
+  gz = None
 
   for mesh in meshes:
+    #mesh = mesh.extract_surface()
+    #if not mesh.is_all_triangles:
+      # reduce chance for artifacts, see gh-1743
+      # mesh.triangulate(inplace=True)
+
     # select_enclosed_points(surface, tolerance=0.001, inside_out=False, check_surface=True, progress_bar=False)
-    mz = cells.select_enclosed_points(mesh, check_surface=False)
-    if operation == 'min':
-      gz = np.nanmin([gz, mz['SelectedPoints']], 0)
+    ep = grid.select_enclosed_points(mesh, tolerance, check_surface=False)
+    if gz is None:
+      gz = ep.point_data['SelectedPoints']
+    elif operation == 'min':
+      gz &= ep.point_data['SelectedPoints']
     else:
-      gz = np.nanmax([gz, mz['SelectedPoints']], 0)
+      gz |= ep.point_data['SelectedPoints']
 
-  grid.cell_data['SelectedPoints'] = gz
-  # contour(isosurfaces=10, scalars=None, compute_normals=False, compute_gradients=False, compute_scalars=True, rng=None, preference='point', method='contour', progress_bar=False)
+  mask = grid.extract_points(gz.view(np.bool_))
+  del mask.cell_data['vtkOriginalCellIds']
+  del mask.point_data['vtkOriginalPointIds']
+  return mask.extract_surface(False, False)
 
-  return grid.threshold(0.5).extract_surface()
-
+#def vtk_merge_voxel(meshes, operation, cell_size):
+  ''' WIP '''
+#  bb = vtk_meshes_bb(meshes)
+#  return pv.PolyData(pv.Box(np.ravel(list(zip(bb[0], bb[1])))))
 
 def vtk_merge_meshes(mode, input_files, operation, cell_size, output, display):
   if not mode:
@@ -97,24 +105,25 @@ def vtk_merge_meshes(mode, input_files, operation, cell_size, output, display):
   input_files = commalist().parse(input_files).split()
   
   meshes = []
-  for input_path in input_files:
-    if not os.path.exists(input_path):
-      print(input_path,"not found")
-      continue
-    mesh = pv_read(input_path)
-    meshes.append(mesh)
+  for raw_path in input_files:
+    for input_path in glob(raw_path):
+      print(input_path)
+      mesh = pv_read(input_path)
+      meshes.append(mesh)
 
   mesh = None
   if mode == 'surface':
     mesh = vtk_merge_surface(meshes, operation, cell_size)
   if mode == 'solid':
     mesh = vtk_merge_solid(meshes, operation, cell_size)
-
+  if mode in ['boolean', 'voxel']:
+    mesh = mr_boolean(meshes, operation, mode, cell_size)
+  
   if output:
     pv_save(mesh, output)
-  if int(display):
-    vtk_plot_meshes([mesh] + meshes)
 
+  if int(display):
+    vtk_plot_meshes(mesh)
 
 main = vtk_merge_meshes
 
