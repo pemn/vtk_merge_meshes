@@ -46,8 +46,8 @@ operation|❎|how the meshes will be combined
 ||and|solid intersection usign vtk
 ||or|solid union using vtk
 ||…|other solid operations using meshlib, check module documentation
-cell_size|☑️|cell size in metersfor the voxel based operation
-output_path|☑️|file path to save result
+cell_size|☑️|cell size in meters for the voxel based operation
+output_path|☑️|file path to save result, in a supported format
 display||show result in a 3d windows
 ## 🧊 Sample Data
 There is some simple artificial dataset on the sample_data folder of this repository for testing and reference.
