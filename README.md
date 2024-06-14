@@ -45,7 +45,7 @@ operation|❎|how the meshes will be combined
 ||order|surface patching, use the first information that cover each cell
 ||and|solid intersection usign vtk
 ||or|solid union using vtk
-||...|other solid operations using meshlib, check module documentation
+||…|other solid operations using meshlib, check module documentation
 cell_size|☑️|cell size in metersfor the voxel based operation
 output_path|☑️|file path to save result
 display||show result in a 3d windows
