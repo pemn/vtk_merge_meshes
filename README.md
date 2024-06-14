@@ -45,13 +45,18 @@ operation|❎|how the meshes will be combined
 ||order|surface patching, use the first information that cover each cell
 ||and|solid intersection usign vtk
 ||or|solid union using vtk
-||...|other solid operations using meshlib, check their documentation
+||...|other solid operations using meshlib, check module documentation
 cell_size|☑️|cell size in metersfor the voxel based operation
 output_path|☑️|file path to save result
 display||show result in a 3d windows
 ## 🧊 Sample Data
 There is some simple artificial dataset on the sample_data folder of this repository for testing and reference.
 ## 📚 Examples
+### VTK surface `min`
+![screenshot2](https://github.com/pemn/assets/blob/main/vtk_merge_meshes2.png?raw=true)  
+### VTK solid `or`
+![screenshot3](https://github.com/pemn/assets/blob/main/vtk_merge_meshes3.png?raw=true)  
+### meshlib operations
 ![screenshot5](https://github.com/pemn/assets/blob/main/vtk_merge_meshes5.png?raw=true)  
 ## 🧩 Compatibility
 distribution|status
